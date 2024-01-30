@@ -1,33 +1,30 @@
 <?php
-//1.  DB接続します
-try {
-  //Password:MAMP='root',XAMPP=''
-  $pdo = new PDO('mysql:dbname=gs_bm;charset=utf8;host=localhost','root','');
-} catch (PDOException $e) {
-  exit('DBconnection Error:'.$e->getMessage());
-}
+include("funcs.php");  //funcs.phpを読み込む（関数群）
+$pdo = db_conn();      //DB接続関数
 
 //２．データ登録SQL作成
-$stmt = $pdo->prepare("SELECT * FROM gs_bm_table");
-$status = $stmt->execute();
+$stmt   = $pdo->prepare("SELECT * FROM gs_bm_table"); //SQLをセット
+$status = $stmt->execute(); //SQLを実行→エラーの場合falseを$statusに代入
 
 //３．データ表示
-$view="";
+$view=""; //HTML文字列作り、入れる変数
 if($status==false) {
-    //execute（SQL実行時にエラーがある場合）
-  $error = $stmt->errorInfo();
-  exit("SQL_ERROR:".$error[2]);
-
+  //SQLエラーの場合
+  sql_error($stmt);
 }else{
-  //Selectデータの数だけ自動でループしてくれる
-  //FETCH_ASSOC=http://php.net/manual/ja/pdostatement.fetch.php
-  while( $res = $stmt->fetch(PDO::FETCH_ASSOC)){
-    $view .= '<p>';
-    $view .= $res['id'].', '.$res['bookname'];
-    $view .= '</p>';
+  //SQL成功の場合
+  while( $r = $stmt->fetch(PDO::FETCH_ASSOC)){ //データ取得数分繰り返す
+    //以下でリンクの文字列を作成, $r["id"]でidをdetail.phpに渡しています
+    $view .= '<a href="detail.php?id='.h($r["id"]).'">';
+    $view .= h($r["id"])."|".h($r["bookname"])."|".h($r["url"]);
+    $view .= '</a>';
+
+    $view .= '<a href="delete.php?id='.h($r["id"]).'">';
+    $view .= '[削除]</a><br>';
   }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="ja">
