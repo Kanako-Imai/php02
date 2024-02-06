@@ -1,8 +1,21 @@
 <?php
-include("funcs.php");  //funcs.phpを読み込む（関数群）
-$pdo = db_conn();      //DB接続関数
+//0. SESSION開始！！
+session_start();
+
+//１．関数群の読み込み
+include("funcs.php");//funcs.phpを読み込む（関数群）
+sschk(); //ログインしないと見れないようにする
+
+//LOGINチェック → funcs.phpへ関数化しましょう！
+//if(!isset($_SESSION["chk_ssid"]) || $_SESSION["chk_ssid"]!=session_id()){
+//    exit("Login Error");
+//}else{
+//    session_regenerate_id(true);
+//    $_SESSION["chk_ssid"] = session_id();
+//}
 
 //２．データ登録SQL作成
+$pdo = db_conn();      //DB接続関数
 $stmt   = $pdo->prepare("SELECT * FROM gs_bm_table"); //SQLをセット
 $status = $stmt->execute(); //SQLを実行→エラーの場合falseを$statusに代入
 
@@ -23,6 +36,21 @@ if($status==false) {
     $view .= '[削除]</a><br>';
   }
 }
+
+
+// MENU表示関数を追加
+function displayMenu(){
+  $kanri_flg = getUserFlag();
+
+  // include("menu.php"); // 共通のメニュー部分は表示
+
+  if($kanri_flg == 1){ // ユーザー管理フラグが1の場合（管理者）
+      // ここに管理者向けのメニューを追加
+      echo '<a class="navbar-brand" href="user.php">ユーザー登録</a>';
+      echo '<a class="navbar-brand" href="user_select.php">ユーザー表示</a>';
+  }
+}
+
 ?>
 
 
@@ -39,21 +67,24 @@ if($status==false) {
 </head>
 <body id="main">
 <!-- Head[Start] -->
-<header>
+<?php include("menu.php"); ?>
+
+<!-- <header>
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
       <a class="navbar-brand" href="index01.php">データ登録</a>
+      <a class="navbar-brand" href="logout.php">ログアウト</a>
       </div>
     </div>
   </nav>
-</header>
+</header> -->
 <!-- Head[End] -->
 
 <!-- Main[Start] -->
 <div>
-    <div class="container jumbotron"><?=$view?></div>
-</div>
+<div class="container jumbotron" id="view"><?=$view?></div>
+  </div>
 <!-- Main[End] -->
 
 </body>

@@ -11,6 +11,7 @@ $comment = $_POST['comment'];
 try {
     //Password:MAMP='root',XAMPP=''
     // $pdo = new PDO('','','');
+    // $pdo = new PDO();
     $pdo = new PDO('mysql:dbname=gs_bm;charset=utf8;host=localhost','root','');
 } catch (PDOException $e) {
     exit('DBconnection Error:' . $e->getMessage());
